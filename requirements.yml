@@ -1,0 +1,24 @@
+name: kit_sch-ge-2021_cell_segmentation_ve
+channels:
+  - pytorch
+  - conda-forge
+  - anaconda
+dependencies:
+  - cudnn
+  - cudatoolkit=11.0
+  - imgaug
+  - ipython
+  - numpy
+  - opencv
+  - pandas
+  - pillow
+  - python=3.8
+  - pytorch=1.7
+  - scikit-image
+  - scipy
+  - imageio
+  - tifffile
+  - torchvision
+  - pip
+  - pip:
+    - imagecodecs
