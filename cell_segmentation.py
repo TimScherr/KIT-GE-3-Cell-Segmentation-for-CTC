@@ -10,7 +10,7 @@ from pathlib import Path
 from segmentation.inference.inference import inference_2d_ctc, inference_3d_ctc
 from segmentation.training.cell_segmentation_dataset import CellSegDataset
 from segmentation.training.autoencoder_dataset import AutoEncoderDataset
-from segmentation.training.create_training_sets import create_ctc_training_sets
+from segmentation.training.create_training_sets import create_ctc_training_sets, create_sim_training_sets
 from segmentation.training.mytransforms import augmentors
 from segmentation.training.training import train, train_auto
 from segmentation.utils import utils, unets
@@ -122,6 +122,9 @@ def main():
                                  path_train_sets=path_train_data,
                                  cell_types=paths['cell_types'])
 
+        # create_sim_training_sets(path_data=path_datasets,
+        #                          path_train_sets=path_train_data)
+
         for cell_type in cell_types:
 
             for architecture in settings['methods']:
@@ -133,6 +136,8 @@ def main():
                     model_name = '{}_{}_{}'.format(cell_type, args.mode, architecture[2])
                 if args.mode == 'GT' and architecture[-1]:  # auto-encoder pre-training only for GT
                     model_name += '-auto'
+                    if cell_type in ['Fluo-N3DH-SIM+', 'Fluo-N2DH-SIM+']:  # not needed for simulated data
+                        continue
                 num_trained_models = len(list(path_models.glob('{}_model*.pth'.format(model_name))))
                 if "all" in args.mode or "ST" in args.mode:
                     iterations = settings['iterations'] - num_trained_models
