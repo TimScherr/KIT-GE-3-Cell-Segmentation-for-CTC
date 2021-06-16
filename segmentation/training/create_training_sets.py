@@ -623,9 +623,12 @@ def create_ctc_training_sets(path_data, path_train_sets, cell_types):
                         frame = seg_gt_id.name.split('man_seg')[-1]
                     seg_gt = tiff.imread(str(seg_gt_id))
                     img = tiff.imread(str(seg_gt_id.parents[2] / train_set / "t{}".format(frame)))
+                    tra_gt = tiff.imread(str(seg_gt_id.parents[1] / 'TRA' / "man_track{}".format(frame)))
+
+                    img, seg_gt, tra_gt = foi_correction_train(cell_type, img, seg_gt, tra_gt)
 
                     if scale != 1:
-                        img, seg_gt, tra_gt = downscale(img=img, seg_gt=seg_gt, scale=scale)
+                        img, seg_gt, tra_gt = downscale(img=img, seg_gt=seg_gt, scale=scale, tra_gt=tra_gt)
 
                     # min-max normalize image to 0 - 65535
                     img = 65535 * (img.astype(np.float32) - img.min()) / (img.max() - img.min())
