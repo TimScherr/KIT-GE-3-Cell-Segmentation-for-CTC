@@ -127,7 +127,7 @@ def main():
     if not isinstance(args.th_seed, list):
         args.th_seed = [args.th_seed]
     if not isinstance(args.th_cell, list):
-        args.th_seed = [args.th_cell]
+        args.th_cell = [args.th_cell]
 
     # Go through model list and evaluate for stated cell_types
     metric_scores = {}
