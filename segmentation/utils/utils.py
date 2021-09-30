@@ -115,73 +115,48 @@ def write_train_info(configs, path):
     return None
 
 
-def copy_best_model(path_models, path_best_models, path_ctc_data, path_segmentation, best_model, best_settings, mode,
-                    cell_types):
+def copy_best_model(path_models, path_best_models, best_model, best_settings):
     """ Copy best models to KIT-Sch-GE_2021/SW and the best (training data set) results.
 
     :param path_models: Path to all saved models.
         :type path_models: pathlib Path object.
     :param path_best_models: Path to the best models.
         :type path_best_models: pathlib Path object.
-    :param path_ctc_data: Path to the Cell Tracking Challenge data
-        :type path_ctc_data: pathlib Path object.
-    :param path_segmentation: Path to the segmentation results.
-        :type path_segmentation: pathlib Path object.
     :param best_model: Name of the best model.
         :type best_model: str
     :param best_settings: Best post-processing settings (th_cell, th_mask, ...)
         :type best_settings: dict
-    :param mode: Primary Track mode ('GT', 'ST', 'GT+ST', 'allGT', 'allST', 'allGT+allST')
-        :type mode: str
-    :param cell_types: cell types belonging to the best model.
-        :type cell_types: list
     :return: None.
     """
 
-    path_best_models.mkdir(parents=True, exist_ok=True)
-
-    new_model_name = best_model.split(mode)[0] + mode
+    new_model_name = best_model[:-3]
 
     # Copy and rename model
     shutil.copy(str(path_models / "{}.pth".format(best_model)),
-                str(path_best_models / "{}_model.pth".format(new_model_name)))
+                str(path_best_models / "{}.pth".format(new_model_name)))
     shutil.copy(str(path_models / "{}.json".format(best_model)),
-                str(path_best_models / "{}_model.json".format(new_model_name)))
-
-    # Copy train results
-    th_seed, th_cell = best_settings['th_seed'], best_settings['th_cell']
-    for cell_type in cell_types:
-        save_path = path_ctc_data / 'training_datasets' / cell_type / 'KIT-Sch-GE_2021' / mode
-        if save_path.exists():
-            shutil.rmtree(save_path)
-            save_path.mkdir(parents=True, exist_ok=True)
-        if best_settings['apply_clahe']:
-            from_path = path_segmentation / mode / best_model / cell_type / "train_{}_{}_clahe".format(int(th_seed * 100),
-                                                                                                       int(th_cell * 100))
-        else:
-            from_path = path_segmentation / mode / best_model / cell_type / "train_{}_{}".format(int(th_seed * 100),
-                                                                                                 int(th_cell * 100))
-        shutil.copytree(str(from_path),
-                        str(path_ctc_data / 'training_datasets' / cell_type / 'KIT-Sch-GE_2021' / mode / 'CSB'))
+                str(path_best_models / "{}.json".format(new_model_name)))
 
     # Add best settings to model info file
-    with open(path_best_models / "{}_model.json".format(new_model_name)) as f:
+    with open(path_best_models / "{}.json".format(new_model_name)) as f:
         settings = json.load(f)
     settings['best_settings'] = best_settings
 
-    with open(path_best_models / "{}_model.json".format(new_model_name), 'w', encoding='utf-8') as outfile:
+    with open(path_best_models / "{}.json".format(new_model_name), 'w', encoding='utf-8') as outfile:
         json.dump(settings, outfile, ensure_ascii=False, indent=2)
 
     return None
 
 
-def get_best_model(metric_scores, mode, th_cells, th_seeds):
+def get_best_model(metric_scores, mode, subset, th_cells, th_seeds):
     """ Get best model and corresponding settings.
 
     :param metric_scores: Scores of corresponding models.
         :type metric_scores: dict
-    :param mode: Primary Track mode ('GT', 'ST', 'GT+ST', 'allGT', 'allST', 'allGT+allST')
+    :param mode: Mode ('all', 'single')
         :type mode: str
+    :param subset: Evaluate on dataset '01', '02' or on both ('01+02').
+        :type subset: str
     :param th_cells: Cell/mask thresholds which are evaluated
         :type th_cells: list
     :param th_seeds: Seed/marker thresholds which are evaluated.
@@ -190,6 +165,10 @@ def get_best_model(metric_scores, mode, th_cells, th_seeds):
     """
 
     best_th_cell, best_th_seed, best_model = 0, 0, ''
+
+    subsets = [subset]
+    if subset == '01+02':
+        subsets = ['01', '02']
 
     if "all" in mode:
 
@@ -205,13 +184,14 @@ def get_best_model(metric_scores, mode, th_cells, th_seeds):
 
                     for cell_type in metric_scores[model]:
 
-                        if cell_type in ['Fluo-C2DL-MSC', 'Fluo-C3DH-H157']:  # makes no sense without scaling
+                        # Exclude too different cell types (goal: better model on other data sets)
+                        if cell_type in ['Fluo-C2DL-MSC', 'Fluo-C3DH-H157']:
                             continue
 
-                        for train_set in ['01', '02']:
+                        for train_set in subsets:
                             op_csb += metric_scores[model][cell_type][train_set][str(th_seed)][str(th_cell)]['OP_CSB']
 
-                    op_csb /= len(metric_scores[model]) * 2
+                    op_csb /= len(metric_scores[model]) * len(subsets)
 
                     if op_csb > best_op_csb:
                         best_op_csb = op_csb
@@ -233,11 +213,11 @@ def get_best_model(metric_scores, mode, th_cells, th_seeds):
 
                         op_csb = 0
 
-                        for train_set in ['01', '02']:
+                        for train_set in subsets:
 
                             op_csb += metric_scores[model][cell_type][train_set][str(th_seed)][str(th_cell)]['OP_CSB']
 
-                        op_csb /= 2
+                        op_csb /= len(subsets)
 
                         if op_csb > best_op_csb:
                             best_op_csb = op_csb
@@ -245,7 +225,7 @@ def get_best_model(metric_scores, mode, th_cells, th_seeds):
                             best_th_seed = th_seed
                             best_model = model
 
-    return best_op_csb, best_th_cell, best_th_seed, best_model
+    return best_op_csb, float(best_th_cell), float(best_th_seed), best_model
 
 
 def zero_pad_model_input(img, pad_val=0):

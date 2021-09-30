@@ -8,16 +8,13 @@ from torch.utils.data import Dataset
 class AutoEncoderDataset(Dataset):
     """ Pytorch data set for instance cell nuclei segmentation """
 
-    def __init__(self, root_dir, gt_train_dir, cell_type, transform=lambda x: x):
+    def __init__(self, data_dir, train_dir, transform=lambda x: x):
         """
 
-        :param root_dir: Directory containing the Cell Tracking Challenge Data.
-            :type root_dir: pathlib Path object.
-        :param gt_train_dir: Directory containing the to the cell type belonging GT train data (only needed to get the
-                                scale factor)
-            :type gt_train_dir: pathlib Path object.
-        :param cell_type: Cell type.
-            :type cell_type: str
+        :param data_dir: Directory containing the Cell Tracking Challenge Data.
+            :type data_dir: pathlib Path object.
+        :param train_dir: Directory containing the to the cell type belonging train data (needed to get the).
+            :type train_dir: pathlib Path object.
         :param transform: transforms/augmentations.
             :type transform:
         :return sample (image, image, scale).
@@ -25,7 +22,7 @@ class AutoEncoderDataset(Dataset):
 
         self.img_ids = []
 
-        img_ids_01 = sorted((root_dir / 'training_datasets' / cell_type / '01').glob('*.tif'))
+        img_ids_01 = sorted((data_dir / '01').glob('*.tif'))
         if len(img_ids_01) > 1500:
             img_ids_01 = img_ids_01[1500:]
         elif len(img_ids_01) > 1000:
@@ -36,7 +33,7 @@ class AutoEncoderDataset(Dataset):
             shuffle(img_ids_01)
             img_ids_01 = img_ids_01[:15]
 
-        img_ids_02 = sorted((root_dir / 'training_datasets' / cell_type / '02').glob('*.tif'))
+        img_ids_02 = sorted((data_dir / '02').glob('*.tif'))
         if len(img_ids_02) > 1500:
             img_ids_02 = img_ids_02[1500:]
         elif len(img_ids_02) > 1000:
@@ -47,12 +44,16 @@ class AutoEncoderDataset(Dataset):
             shuffle(img_ids_02)
             img_ids_02 = img_ids_02[:15]
 
-        self.img_ids = img_ids_01 + img_ids_02
+        if tiff.imread(str(img_ids_01[0])).shape == tiff.imread(str(img_ids_02[0])).shape:
+            self.img_ids = img_ids_01 + img_ids_02
+        else:
+            print('Subsets 01 and 02 have different sizes')
+            self.img_ids = img_ids_01  # just use one subset
 
-        with open(gt_train_dir / "{}_GT".format(cell_type) / 'info.json') as f:
+        with open(train_dir / 'info.json') as f:
             self.scale = json.load(f)['scale']
 
-        self.root_dir = root_dir
+        self.data_dir = data_dir
         self.transform = transform
 
     def __len__(self):

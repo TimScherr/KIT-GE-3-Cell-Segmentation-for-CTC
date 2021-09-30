@@ -6,26 +6,19 @@ from torch.utils.data import Dataset
 class CellSegDataset(Dataset):
     """ Pytorch data set for instance cell nuclei segmentation """
 
-    def __init__(self, root_dir, cell_type, gt_mode, mode='train', transform=lambda x: x):
+    def __init__(self, root_dir, mode='train', transform=lambda x: x):
         """
 
         :param root_dir: Directory containing all created training/validation data sets.
             :type root_dir: pathlib Path object.
-        :param cell_type: cell type.
-            :type cell_type: str
-        :param gt_mode: Primary Track mode ('GT', 'ST', 'GT+ST', 'allGT', 'allST', 'allGT+allST')
-            :type gt_mode: str
         :param mode: 'train' or 'val'.
             :type mode: str
-        :param transform: transformss.
+        :param transform: transforms.
             :type transform:
         :return: Dict (image, cell_label, border_label, id).
         """
 
-        if "all" in gt_mode:
-            self.img_ids = sorted((root_dir / gt_mode / mode).glob('img*.tif'))
-        else:
-            self.img_ids = sorted((root_dir / "{}_{}".format(cell_type, gt_mode) / mode).glob('img*.tif'))
+        self.img_ids = sorted((root_dir / mode).glob('img*.tif'))
         self.mode = mode
         self.root_dir = root_dir
         self.transform = transform

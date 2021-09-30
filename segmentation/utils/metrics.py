@@ -25,21 +25,16 @@ def ctc_metrics(path_data, path_results, path_software, subset, mode='GT'):
     else:
         t = '3'
 
-    if 'GT' in mode:
-        mode = 'GT'
-    else:
-        mode = 'ST'
-
     # Clear temporary result directory if exists
-    if os.path.exists(str(path_results.parent / path_data.stem)):
-        shutil.rmtree(str(path_results.parent / path_data.stem))
+    if os.path.exists(str(path_results.parent / 'tmp')):
+        shutil.rmtree(str(path_results.parent / 'tmp'))
 
     # Copy GT / ST
-    (path_results.parent / path_data.stem).mkdir(exist_ok=True)
+    (path_results.parent / 'tmp').mkdir(exist_ok=True)
     shutil.copytree(str(path_data / "{}_{}".format(subset, mode)),
-                    str(path_results.parent / path_data.stem / "{}_GT".format(subset)))
+                    str(path_results.parent / 'tmp' / "{}_GT".format(subset)))
     shutil.copytree(str(path_results),
-                    str(path_results.parent / path_data.stem / path_results.stem))
+                    str(path_results.parent / 'tmp' / "{}_RES".format(subset)))
 
     # Chose the executable in dependency of the operating system
     if platform.system() == 'Linux':
@@ -55,34 +50,29 @@ def ctc_metrics(path_data, path_results, path_software, subset, mode='GT'):
         raise ValueError('Platform not supported')
 
     # Apply the evaluation software to calculate the cell tracking challenge SEG measure
-    output = subprocess.Popen([str(path_seg_executable), str(path_results.parent / path_data.stem), subset, t],
+    output = subprocess.Popen([str(path_seg_executable), str(path_results.parent / 'tmp'), subset, t],
                               stdout=subprocess.PIPE)
     result, _ = output.communicate()
     seg_measure = re.findall(r'\d\.\d*', result.decode('utf-8'))
     seg_measure = float(seg_measure[0])
-
-    if mode == 'ST':
-        shutil.copyfile(str(path_results.parent / path_data.stem / "{}_RES".format(subset) / 'SEG_log.txt'),
-                        str(path_results / 'SEG_log_ST.txt'))
-    else:
-        shutil.copyfile(str(path_results.parent / path_data.stem / "{}_RES".format(subset) / 'SEG_log.txt'),
-                        str(path_results / 'SEG_log.txt'))
+    shutil.copyfile(str(path_results.parent / 'tmp' / "{}_RES".format(subset) / 'SEG_log.txt'),
+                    str(path_results / 'SEG_log.txt'))
 
     if mode == 'GT':
-        output = subprocess.Popen([str(path_det_executable), str(path_results.parent / path_data.stem), subset, t],
+        output = subprocess.Popen([str(path_det_executable), str(path_results.parent / 'tmp'), subset, t],
                                   stdout=subprocess.PIPE)
         result, _ = output.communicate()
         det_measure = re.findall(r'\d\.\d*', result.decode('utf-8'))
         det_measure = float(det_measure[0])
 
         # Copy result files
-        shutil.copyfile(str(path_results.parent / path_data.stem / "{}_RES".format(subset) / 'DET_log.txt'),
+        shutil.copyfile(str(path_results.parent / 'tmp' / "{}_RES".format(subset) / 'DET_log.txt'),
                         str(path_results / 'DET_log.txt'))
     else:
         det_measure = 0
 
     # Remove temporary directory
-    shutil.rmtree(str(path_results.parent / path_data.stem))
+    shutil.rmtree(str(path_results.parent / 'tmp'))
 
     return seg_measure, det_measure
 

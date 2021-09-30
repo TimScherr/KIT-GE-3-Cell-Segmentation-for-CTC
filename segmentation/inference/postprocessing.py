@@ -113,7 +113,8 @@ def distance_postprocessing(border_prediction, cell_prediction, args, input_3d=F
                 seeds[seeds == props[i].label] = 0
         seeds = measure.label(seeds, background=0)
 
-    if input_3d and np.max(seeds) >= args.n_splitting:  # local splitting since the slice-wise predictions tend to undersegmentate
+    # local splitting since the slice-wise predictions tend to undersegmentation
+    if input_3d and np.max(seeds) >= args.n_splitting:
 
         seeds = ((cell_prediction - 0.5 * borders) > th_local)  # give chance to correct wrong borders
         seeds = measure.label(seeds, background=0)
@@ -144,6 +145,7 @@ def distance_postprocessing(border_prediction, cell_prediction, args, input_3d=F
     # Marker-based watershed
     prediction_instance = watershed(image=-cell_prediction, markers=seeds, mask=mask, watershed_line=False)
 
+    # Iterative splitting of cells detected as (probably) merged
     if apply_splitting:
         props = measure.regionprops(prediction_instance)
         volumes, nucleus_ids = [], []

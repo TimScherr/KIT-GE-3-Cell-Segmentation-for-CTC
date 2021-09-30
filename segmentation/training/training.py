@@ -10,6 +10,51 @@ from segmentation.training.ranger2020 import Ranger
 from segmentation.training.losses import get_loss
 
 
+def get_max_epochs(n_samples):
+    """ Get maximum amount of training epochs.
+
+    :param n_samples: number of training samples.
+        :type n_samples: int
+    :return: maximum amount of training epochs
+    """
+
+    if n_samples >= 1000:
+        max_epochs = 200
+    elif n_samples >= 500:
+        max_epochs = 240
+    elif n_samples >= 200:
+        max_epochs = 320
+    elif n_samples >= 100:
+        max_epochs = 400
+    elif n_samples >= 50:
+        max_epochs = 480
+    else:
+        max_epochs = 560
+
+    return max_epochs
+
+
+def get_weights(net, weights, device, num_gpus):
+    """ Load weights into model.
+
+    :param net: Model to load the weights into.
+        :type net:
+    :param weights: Path to the weights.
+        :type weights: pathlib Path object
+    :param device: Device to use ('cpu' or 'cuda')
+        :type device:
+    :param num_gpus: Amount of GPUs to use.
+        :type num_gpus: int
+    :return: model with loaded weights.
+
+    """
+    if num_gpus > 1:
+        net.module.load_state_dict(torch.load(weights, map_location=device))
+    else:
+        net.load_state_dict(torch.load(weights, map_location=device))
+    return net
+
+
 def train(net, datasets, configs, device, path_models, best_loss=1e4):
     """ Train the model.
 

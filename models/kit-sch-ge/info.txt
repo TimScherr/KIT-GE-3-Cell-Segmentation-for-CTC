@@ -1,0 +1,1 @@
+Directory for the KIT-Sch-GE models from the Cell Tracking Challenge: http://celltrackingchallenge.net/participants/KIT-Sch-GE/

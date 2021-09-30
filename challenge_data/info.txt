@@ -1,0 +1,7 @@
+Directory for the data for inference.
+
+Cell Tracking Challenge data: 
+
+http://celltrackingchallenge.net/2d-datasets/
+
+http://celltrackingchallenge.net/3d-datasets/

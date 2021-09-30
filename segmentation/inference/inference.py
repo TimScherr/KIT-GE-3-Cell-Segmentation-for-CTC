@@ -59,13 +59,8 @@ def inference_2d_ctc(model, data_path, result_path, device, batchsize, args, num
 
     # Get images to predict
     ctc_dataset = CTCDataSet(data_dir=data_path,
-                             transform=pre_processing_transforms(apply_clahe=args.apply_clahe,
-                                                                 scale_factor=args.scale))
-    dataloader = torch.utils.data.DataLoader(ctc_dataset,
-                                             batch_size=batchsize,
-                                             shuffle=False,
-                                             pin_memory=True,
-                                             num_workers=8)
+                             transform=pre_processing_transforms(apply_clahe=args.apply_clahe, scale_factor=args.scale))
+    dataloader = torch.utils.data.DataLoader(ctc_dataset, batch_size=batchsize, shuffle=False, pin_memory=True, num_workers=8)
 
     # Predict images (iterate over images/files)
     for sample in dataloader:
@@ -103,24 +98,23 @@ def inference_2d_ctc(model, data_path, result_path, device, batchsize, args, num
                 save_raw_pred = False
 
             file_id = ids_batch[h].split('t')[-1] + '.tif'
-            if model_settings['label_type'] == 'distance':
-                prediction_instance, border = distance_postprocessing(border_prediction=prediction_border_batch[h],
-                                                                      cell_prediction=prediction_cell_batch[h],
-                                                                      args=args)
-                if args.scale < 1:
-                    prediction_instance = resize(prediction_instance,
-                                                 img_size,
-                                                 order=0,
-                                                 preserve_range=True,
-                                                 anti_aliasing=False).astype(np.uint16)
+            prediction_instance, border = distance_postprocessing(border_prediction=prediction_border_batch[h],
+                                                                  cell_prediction=prediction_cell_batch[h],
+                                                                  args=args)
+            if args.scale < 1:
+                prediction_instance = resize(prediction_instance,
+                                             img_size,
+                                             order=0,
+                                             preserve_range=True,
+                                             anti_aliasing=False).astype(np.uint16)
 
-                prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
+            prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
 
-                tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
-                if save_raw_pred:
-                    tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h, ..., 0].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h, ..., 0].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
+            tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
+            if save_raw_pred:
+                tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h, ..., 0].astype(np.float32), compress=1)
+                tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h, ..., 0].astype(np.float32), compress=1)
+                tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
 
     if args.artifact_correction:
         # Artifact correction based on the assumption that the cells are dense and artifacts far away
@@ -197,13 +191,8 @@ def inference_3d_ctc(model, data_path, result_path, device, batchsize, args, num
 
     # Get images to predict
     ctc_dataset = CTCDataSet(data_dir=data_path,
-                             transform=pre_processing_transforms(apply_clahe=args.apply_clahe,
-                                                                 scale_factor=args.scale))
-    dataloader = torch.utils.data.DataLoader(ctc_dataset,
-                                             batch_size=batchsize,
-                                             shuffle=False,
-                                             pin_memory=True,
-                                             num_workers=8)
+                             transform=pre_processing_transforms(apply_clahe=args.apply_clahe, scale_factor=args.scale))
+    dataloader = torch.utils.data.DataLoader(ctc_dataset, batch_size=batchsize, shuffle=False, pin_memory=True, num_workers=8)
 
     # Predict images (iterate over images/files)
     for sample in dataloader:
@@ -253,27 +242,26 @@ def inference_3d_ctc(model, data_path, result_path, device, batchsize, args, num
                 save_raw_pred = False
 
             file_id = ids_batch[h].split('t')[-1] + '.tif'
-            if model_settings['label_type'] == 'distance':
-                prediction_instance, border = distance_postprocessing(border_prediction=prediction_border_batch[h],
-                                                                      cell_prediction=prediction_cell_batch[h],
-                                                                      args=args,
-                                                                      input_3d=True)
+            prediction_instance, border = distance_postprocessing(border_prediction=prediction_border_batch[h],
+                                                                  cell_prediction=prediction_cell_batch[h],
+                                                                  args=args,
+                                                                  input_3d=True)
 
-                if args.scale < 1:
-                    prediction_instance = resize(prediction_instance,
-                                                 img_size,
-                                                 order=0,
-                                                 preserve_range=True,
-                                                 anti_aliasing=False).astype(np.uint16)
+            if args.scale < 1:
+                prediction_instance = resize(prediction_instance,
+                                             img_size,
+                                             order=0,
+                                             preserve_range=True,
+                                             anti_aliasing=False).astype(np.uint16)
 
-                prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
+            prediction_instance = foi_correction(mask=prediction_instance, cell_type=args.cell_type)
 
-                tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
+            tiff.imsave(str(result_path / ('mask' + file_id)), prediction_instance, compress=1)
 
-                if save_raw_pred:
-                    tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h].astype(np.float32), compress=1)
-                    tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
+            if save_raw_pred:
+                tiff.imsave(str(result_path / ('cell' + file_id)), prediction_cell_batch[h].astype(np.float32), compress=1)
+                tiff.imsave(str(result_path / ('raw_border' + file_id)), prediction_border_batch[h].astype(np.float32), compress=1)
+                tiff.imsave(str(result_path / ('border' + file_id)), border.astype(np.float32), compress=1)
 
     # Clear memory
     del net

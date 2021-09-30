@@ -1,0 +1,7 @@
+Directory for the training data (training data sets are extracted from the datasets within this directory).
+
+Cell Tracking Challenge data: 
+
+http://celltrackingchallenge.net/2d-datasets/
+
+http://celltrackingchallenge.net/3d-datasets/

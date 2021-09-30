@@ -5,15 +5,7 @@ import torch.nn.functional as F
 from torch import tanh
 
 
-def build_unet(unet_type,
-               act_fun,
-               pool_method,
-               normalization,
-               device,
-               num_gpus,
-               ch_in=1,
-               ch_out=1,
-               filters=(64, 1024)):
+def build_unet(unet_type, act_fun, pool_method, normalization, device, num_gpus, ch_in=1, ch_out=1, filters=(64, 1024)):
     """ Build U-net architecture.
 
     :param unet_type: 'U' (U-net) or 'DU' (U-net with two decoder paths and two outputs).
@@ -38,34 +30,20 @@ def build_unet(unet_type,
     """
 
     # Build model
-    if unet_type == 'U':  # U-Net (e.g., for binary, border, cell_dist label)
-
-        model = UNet(ch_in=ch_in,
-                     ch_out=ch_out,
-                     pool_method=pool_method,
-                     filters=filters,
-                     act_fun=act_fun,
-                     normalization=normalization)
-
-    elif unet_type == 'DU':  # U-Net with two decoder paths and two single channel outputs (e.g., cell + neighbor dist)
-
+    if unet_type == 'DU':  # U-Net with two decoder paths and two single channel outputs (e.g., cell + neighbor dist)
         model = DUNet(ch_in=ch_in,
-                      ch_out=ch_out,  # 3: adapted borders, 1 distance neighbor
+                      ch_out=ch_out,
                       pool_method=pool_method,
                       filters=filters,
                       act_fun=act_fun,
                       normalization=normalization)
-
     elif unet_type == 'AutoU':  # Autoencoder U-Net
-
         model = AutoUNet(ch_in=ch_in,
                          pool_method=pool_method,
                          filters=filters,
                          act_fun=act_fun,
                          normalization=normalization)
-
     else:
-
         raise Exception('Architecture "{}" is not known'.format(unet_type))
 
     # Use multiple GPUs if available
@@ -79,6 +57,7 @@ def build_unet(unet_type,
 
 
 class Mish(nn.Module):
+    """ Mish activation function. """
 
     def __init__(self):
         super().__init__()
