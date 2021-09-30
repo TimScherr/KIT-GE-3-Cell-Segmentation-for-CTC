@@ -13,7 +13,7 @@ python ./cell_eval.py --cell_type "Fluo-C3DH-A549" --mode "GT" --model "Fluo-C3D
 python ./cell_eval.py --cell_type "Fluo-C3DH-H157" --mode "GT" --model "Fluo-C3DH-H157_GT+ST_kit-sch-ge" --batch_size 8 --th_cell 0.07 --th_seed 0.35 0.45
 python ./cell_eval.py --cell_type "Fluo-C3DL-MDA231" --mode "GT" --model "Fluo-C3DL-MDA231_GT+ST_kit-sch-ge" --batch_size 8 --th_cell 0.07 --th_seed 0.35 0.45
 python ./cell_eval.py --cell_type "Fluo-N2DH-GOWT1" --mode "GT" --model "Fluo-N2DH-GOWT1_GT+ST_kit-sch-ge" --batch_size 16 --th_cell 0.07 --th_seed 0.35 0.45
-python ./cell_eval.py --cell_type "Fluo-N3DH-CE" --mode "GT+" --model "Fluo-N3DH-CE_GT+ST_kit-sch-ge" --batch_size 8 --th_cell 0.07 --th_seed 0.35 0.45
+python ./cell_eval.py --cell_type "Fluo-N3DH-CE" --mode "GT" --model "Fluo-N3DH-CE_GT+ST_kit-sch-ge" --batch_size 8 --th_cell 0.07 --th_seed 0.35 0.45
 python ./cell_eval.py --cell_type "Fluo-N2DL-HeLa" --mode "GT" --model "Fluo-N2DL-HeLa_GT+ST_kit-sch-ge" --batch_size 16 --th_cell 0.07 --th_seed 0.35 0.45
 python ./cell_eval.py --cell_type "Fluo-N3DH-CHO" --mode "GT" --model "Fluo-N3DH-CHO_GT+ST_kit-sch-ge" --batch_size 8 --th_cell 0.07 --th_seed 0.35 0.45
 python ./cell_eval.py --cell_type "PhC-C2DH-U373" --mode "GT" --model "PhC-C2DH-U373_GT+ST_kit-sch-ge" --batch_size 16 --th_cell 0.07 --th_seed 0.35 0.45
