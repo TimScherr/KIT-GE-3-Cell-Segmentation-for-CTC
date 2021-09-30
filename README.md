@@ -73,38 +73,39 @@ Trained models are saved into *./models/all/*.
 ### Training Data
 For the training, 320px-by-320px crops are generated. For Cell Tracking Challenge GT data, the detection GT located in the *TRA* folder are used to examine if all cells in a crop are annotated. Only high quality crops are used (with some exceptions if too few crops are available). For the mixture of GT and ST, the amount of STs is limited. The final training sets with for training required distance transforms are saved into *./train_data/train_sets/*.
 
-If you want to train models on your own data or to apply trained models to your own data, you need to convert your data into the Cell Tracking Challenge format and add the data to *./train_data/* (best put annotated masks into the GT folders *SEG* and *TRA*). Using the parameter *cell_type=name_of_your_folder* in the training will create a training set with crop_size 320px-by-320px and train models with this set.
+If you want to train models on your own data or to apply trained models to your own data, you need to convert your data into the Cell Tracking Challenge format and add the data to *./train_data/* (best put annotated masks into the GT folders *SEG* and *TRA*). Using the parameter <tt>--cell_type 'name_of_your_folder'</tt> in the training will create a training set with crop_size 320px-by-320px and train models with this set.
 
 ### Parameters
 Defaults are written bold.
-- --act_fun / -a: activation function (**'relu'**, 'leakyrelu', 'elu', 'mish').
-- --batch_size / -bs: batch size (**8**).
-- --cell_type / -ct: cell_type. 'all' will train a model on preselected Cell Tracking Challenge datasets. Multiple cell types can be used.
-- --filters / -f: number of kernels (**64 1024**). After each pooling, the number is doubled in the encoder till the maximum is reached.
-- --iterations / -i: number of models trained (**1**).
-- --loss / -l: loss function ('l1', 'l2', **'smooth_l1'**).
-- --mode / -m: type of training data / training mode (**'GT'**, 'ST', 'GT+ST').
-- --multi_gpu / -mgpu: use multiple GPUs if available (**True**).
-- --norm_method / -nm: normalization layer type (**'bn'**, 'gn', 'in').
-- --optimizer / -o: optimizer (**'adam'**, '[ranger](https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer)').
-- --pool_method / -pm: Pooling method ('max' (maximum pooling), **'conv'** (convolution with stride 2)).
-- --pre_train / -pt: auto-encoder pre-training (only for GT and single cell type).
-- --retrain / -r: model to retrain.
-- --split / -s: data used for train/val split ('kit-sch-ge' (exact reproduction of sets), '01' (use only 01 set for training data creation), '02', **'01+02'**).
+- <tt>--act_fun</tt> / <tt>-a</tt>: activation function (**'relu'**, 'leakyrelu', 'elu', 'mish').
+- <tt>--batch_size</tt> / <tt>-bs</tt>: batch size (**8**).
+- <tt>--cell_type</tt> / <tt>-ct</tt>: cell_type. 'all' will train a model on preselected Cell Tracking Challenge datasets. Multiple cell types can be used.
+- <tt>--filters</tt> / <tt>-f</tt>: number of kernels (**64 1024**). After each pooling, the number is doubled in the encoder till the maximum is reached.
+- <tt>--iterations</tt> / <tt>-i</tt>: number of models trained (**1**).
+- <tt>--loss</tt> / <tt>-l</tt>: loss function ('l1', 'l2', **'smooth_l1'**).
+- <tt>--mode</tt> / <tt>-m</tt>: type of training data / training mode (**'GT'**, 'ST', 'GT+ST').
+- <tt>--multi_gpu</tt> / <tt>-mgpu</tt>: use multiple GPUs if available (**True**).
+- <tt>--norm_method</tt> / <tt>-nm</tt>: normalization layer type (**'bn'**, 'gn', 'in').
+- <tt>--optimizer</tt> / <tt>-o</tt>: optimizer (**'adam'**, '[ranger](https://github.com/lessw2020/Ranger-Deep-Learning-Optimizer)').
+- <tt>--pool_method</tt> / <tt>-pm</tt>: Pooling method ('max' (maximum pooling), **'conv'** (convolution with stride 2)).
+- <tt>--pre_train</tt> / <tt>-pt</tt>: auto-encoder pre-training (only for GT and single cell type).
+- <tt>--retrain</tt> / <tt>-r</tt>: model to retrain.
+- <tt>--split</tt> / <tt>-s</tt>: data used for train/val split ('kit-sch-ge' (exact reproduction of sets), '01' (use only 01 set for training data creation), '02', **'01+02'**).
 
 ### Recommendations and Remarks:
 - Use a batch size of 4 or 8. We use 8 with 2 GPUs (effectively 4).
-- Use the default settings but try also the Ranger optimizer with mish activation function (-a 'mish' -o 'ranger') instead of Adam and ReLU (-a 'relu' -o 'adam').
+- Use the default settings but try also the Ranger optimizer with mish activation function (<tt>-a 'mish' -o 'ranger'</tt>) instead of Adam and ReLU (<tt>-a 'relu' -o 'adam'</tt>).
 - auto-encoder pre-training seems not really to help even if only a few GT are available.
 - Use the retraining with care. Only a single parameter group is used which may lead to large changes in the first filters and make the subsequent learned filters useless. A more sophisticated retraining, e.g., retraining only the decoders or use multiple learning rates for multiple parameter groups, may be added in future releases 
-- The auto-encoder pre-training is always made on both subsets regardless of the *split* parameter.
+- The auto-encoder pre-training is always made on both subsets regardless of the <tt>split</tt> parameter.
+- If you want to create labels with another method, e.g., boundary labels, you need to adjust the function <tt>generate_data</tt> in *./segmentation/training/create_training_sets.py*
 
 ### Examples
 Train a model on a training set created from STs of the subset '01' of the dataset Fluo-N2DL-HeLa:
 ```
 python train.py --cell_type 'Fluo-N2DL-HeLa' --mode 'ST' --split '01'
 ```
-Train 2 models with Ranger and mish on a training dataset made from BF-C2DL-HSC and BF-C2DL-MuSC:
+Train two models with Ranger and mish on a training dataset made from BF-C2DL-HSC and BF-C2DL-MuSC:
 ```
 python train.py --cell_type 'BF-C2DL-HSC' 'BF-C2DL-MuSC' --mode 'ST' --act_fun 'mish' --optimizer 'ranger' --iterations 2
 ```
@@ -123,30 +124,29 @@ The best model (OP_CSB measure for GT & GT+ST, SEG measure calculated on ST for 
 *eval_kit-sch-ge.sh* is a bash script for the training and evaluation of our whole submission (takes some time!). 
 
 ### Parameters
-- --apply_clahe / -acl: CLAHE pre-processing.
-- --artifact_correction / -ac: Motion-based artifact correction post-processing (only for 2D and dense data).
-- --batch_size / -bs: batch size (**8**).
-- --fuse_z_seeds / -fzs. Fuse seeds in axial direction (only for 3D).
-- --mode / -m: type of training data / evaluation mode (**'GT'**, 'ST').
-- --models: Models to evaluate.
-- --multi_gpu / -mgpu: use multiple GPUs if available (**True**).
-- --n_splitting: Threshold of detected cells to apply splitting post-processing (**40**, only 3D).
-- --save_raw_pred / -srp: save some raw/distance predictions.
-- --scale / -sc: Scale factor (**0**, 0 means that the information is loaded from corresponding training set .json file).
-- --split / -s: Subset for evaluation ('01' (use only 01 set), '02', **'01+02'**).
-- --th_cell/ -tc: Threshold(s) for adjusting cell size (**0.07**).
-- --th_seed / -ts: Threshold(s) for seed extraction (**0.45**).
-
+- <tt>--apply_clahe</tt> / <tt>-acl</tt>: CLAHE pre-processing.
+- <tt>--artifact_correction</tt> / <tt>-ac</tt>: Motion-based artifact correction post-processing (only for 2D and dense data).
+- <tt>--batch_size</tt> / <tt>-bs</tt>: batch size (**8**).
+- <tt>--fuse_z_seeds</tt> / <tt>-fzs</tt>: Fuse seeds in axial direction (only for 3D).
+- <tt>--mode</tt> / <tt>-m</tt>: type of training data / evaluation mode (**'GT'**, 'ST').
+- <tt>--models</tt>: Models to evaluate.
+- <tt>--multi_gpu</tt> / <tt>-mgpu</tt>: use multiple GPUs if available (**True**).
+- <tt>--n_splitting</tt>: Threshold of detected cells to apply splitting post-processing (**40**, only 3D).
+- <tt>--save_raw_pred</tt> / <tt>-srp</tt>: save some raw/distance predictions.
+- <tt>--scale</tt> / <tt>-sc</tt>: Scale factor (**0**, 0 means that the information is loaded from corresponding training set .json file).
+- <tt>--split</tt> / <tt>-s</tt>: Subset for evaluation ('01' (use only 01 set), '02', **'01+02'**).
+- <tt>--th_cell</tt>/ <tt>-tc</tt>: Threshold(s) for adjusting cell size (**0.07**).
+- <tt>--th_seed</tt> / <tt>-ts</tt>: Threshold(s) for seed extraction (**0.45**).
 
 ### Recommendations and Remarks
 - Use a lower batch size for large image sizes or 3D data depending on your VRAM.
 - If you want to evaluate on your own data, the dataset name / cell type should include '2D' for 2D data and '3D' for 3D data.
-- All models which begin with --models will be evaluated and the best model will be selected and copied to ./models/best/'
+- All models which begin with <tt>--models 'model_prefix'</tt> will be evaluated and the best model will be selected and copied to *./models/best/'*
 - Some cell types are excluded for finding the best model evaluations with more than 1 cell type given (since they are quite different and the idea is to find a better model for the remaining cell types).
-- A list with metrics for each subset and cell type of each model can be found after the evaluation at ./models/best/.
+- A list with metrics for each subset and cell type of each model can be found after the evaluation at *./models/best/.
 
 ### Examples
-Evaluate all models which begin with 'BF-C2DL-HSC_GT+ST' (in ./models/all) for multiple thresholds:
+Evaluate all models which begin with 'BF-C2DL-HSC_GT+ST' (in *./models/all*) for multiple thresholds:
 ```
 python eval.py --cell_type 'BF-C2DL-HSC' --mode 'GT' --artifact_correction --th_cell 0.07 0.09 --th_seed 0.35 0.45
 ```
@@ -160,27 +160,28 @@ For inference, select a model and run:
 ```
 python infer.py --cell_type 'cell_type' --model 'model'
 ```
-The results can be found in ./challenge_datasets/cell_type.
-*inference_kit-sch-ge.sh* is a bash script to reproce our results.
+The results can be found in *./challenge_datasets/cell_type*.
+
+*inference_kit-sch-ge.sh* is a bash script to reproduce our results.
 
 ### Parameters
-- --apply_clahe / -acl: CLAHE pre-processing.
-- --artifact_correction / -ac: Motion-based artifact correction post-processing (only for 2D and dense data).
-- --batch_size / -bs: batch size (**8**).
-- --fuse_z_seeds / -fzs. Fuse seeds in axial direction (only for 3D).
-- --model: Model to use.
-- --multi_gpu / -mgpu: use multiple GPUs if available (**True**).
-- --n_splitting: Threshold of detected cells to apply splitting post-processing (**40**, only 3D).
-- --save_raw_pred / -srp: save some raw/distance predictions.
-- --scale / -sc: Scale factor (**0**, 0 means that the information is loaded from corresponding training set .json file).
-- --split / -s: Subset for evaluation ('01' (use only 01 set), '02', **'01+02'**).
-- --th_cell/ -tc: Threshold for adjusting cell size (**0.07**).
-- --th_seed / -ts: Threshold for seed extraction (**0.45**).
+- <tt>--apply_clahe</tt> / <tt>-acl</tt>: CLAHE pre-processing.
+- <tt>--artifact_correction</tt> / <tt>-ac</tt> : Motion-based artifact correction post-processing (only for 2D and dense data).
+- <tt>--batch_size</tt> / <tt>-bs</tt>: batch size (**8**).
+- <tt>--fuse_z_seeds</tt> / <tt>-fzs</tt>: Fuse seeds in axial direction (only for 3D).
+- <tt>--model</tt>: Model to use.
+- <tt>--multi_gpu</tt>  / <tt>-mgpu</tt>: use multiple GPUs if available (**True**).
+- <tt>--n_splitting</tt>: Threshold of detected cells to apply splitting post-processing (**40**, only 3D).
+- <tt>--save_raw_pred</tt> / <tt>-srp</tt>: save some raw/distance predictions.
+- <tt>--scale</tt> / <tt>-sc</tt>: Scale factor (**0**, 0 means that the information is loaded from corresponding training set .json file).
+- <tt>--split</tt> / <tt>-s</tt>: Subset for evaluation ('01' (use only 01 set), '02', **'01+02'**).
+- <tt>--th_cell</tt> / <tt>-tc</tt>: Threshold for adjusting cell size (**0.07**).
+- <tt>--th_seed</tt> / <tt>-ts</tt>: Threshold for seed extraction (**0.45**).
 
 ### Recommendations and Remarks
 - Use a lower batch size for large image sizes or 3D data depending on your VRAM.
 - If you want to process on your own data, the dataset name / cell type should include '2D' for 2D data and '3D' for 3D data.
-- Like for the training datasets, your own data need to be in the Cell Tracking Challenge format and lie in ./challenge_data/ (no ground truths needed this time).
+- Like for the training datasets, your own data need to be in the Cell Tracking Challenge format and lie in *./challenge_data/* (no ground truths needed this time).
 
 ### Examples
 Process multiple datasets with the same model and save some raw predictions
@@ -194,7 +195,7 @@ python eval.py --cell_type 'BF-C2DL-HSC' 'BF-C2DL-MuSC' --model 'best/BF-C2DL-HS
 This release contains our original code for our Cell Tracking Challenge contribution.
 
 ### 2.0
-This release improves the usability of our code, e.g., training/retraining. In addition, some subtle changes have been made in the training data creation. However, the original training data sets can still be used usion the parameter *split'.
+This release improves the usability of our code, e.g., training/retraining. In addition, some subtle changes have been made in the training data creation. However, the original training data sets can still be reproduced using the parameter <tt>split</tt>.
 
 ## Publications
 T. Scherr, K. Löffler, M. Böhland, and R. Mikut (2020). Cell Segmentation and Tracking using CNN-Based Distance Predictions and a Graph-Based Matching Strategy. PLoS ONE 15(12). DOI: [10.1371/journal.pone.0243219](https://doi.org/10.1371/journal.pone.0243219).

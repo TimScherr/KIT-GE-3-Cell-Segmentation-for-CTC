@@ -17,4 +17,3 @@ __pycache__/
 # image data
 *.tif
 *.tiff
-*.png
