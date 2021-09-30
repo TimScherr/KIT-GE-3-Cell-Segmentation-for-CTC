@@ -61,7 +61,7 @@ if __name__ == "__main__":
             os.remove(challengedata_path / "{}.zip".format(cell_type))
 
     # Download evaluation software
-    if len(list(evalsoftware_path.glob('*'))) == 0:
+    if len(list(evalsoftware_path.glob('*'))) <= 1:
         print('Downloading evaluation software ...')
         download_data(url=evalsoftware_url, target=evalsoftware_path)
 

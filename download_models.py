@@ -24,7 +24,7 @@ if __name__ == "__main__":
     model_url = 'http://public.celltrackingchallenge.net/participants/KIT-Sch-GE%20(2).zip'
 
     # Download training set
-    if len(list(model_path.glob('*'))) == 0:
+    if len(list(model_path.glob('*.pth'))) == 0:
         print('Downloading models ...')
         download_data(url=model_url, target=model_path)
 
