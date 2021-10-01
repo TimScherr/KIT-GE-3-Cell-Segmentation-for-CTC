@@ -71,7 +71,7 @@ Trained models are saved into *./models/all/*.
 *train_kit-sch-ge.sh* is a bash script for reproducing the training and evaluation of our whole submission (takes some time!). 
 
 ### Training Data
-For the training, 320px-by-320px crops are generated. For Cell Tracking Challenge GT data, the detection GT located in the *TRA* folder are used to examine if all cells in a crop are annotated. Only high quality crops are used (with some exceptions if too few crops are available). For the mixture of GT and ST, the amount of STs is limited. The final training sets with for training required distance transforms are saved into *./train_data/train_sets/*.
+For the training, 320px-by-320px crops are generated. For Cell Tracking Challenge GT data, the detection GT located in the *TRA* folder are used to examine if all cells in a crop are annotated. Only high quality crops are used (with some exceptions if too few crops are available). For the mixture of GT and ST, the amount of STs is limited. The final training sets with for training required distance transforms are saved into *./train_data/* (with a training set name consisting of the cell type, mode and split or for multiple cell types just a hash).
 
 If you want to train models on your own data or to apply trained models to your own data, you need to convert your data into the Cell Tracking Challenge format and add the data to *./train_data/* (best put annotated masks into the GT folders *SEG* and *TRA*). Using the parameter <tt>--cell_type "name_of_your_folder"</tt> in the training will create a training set with crop_size 320px-by-320px and train models with this set.
 
