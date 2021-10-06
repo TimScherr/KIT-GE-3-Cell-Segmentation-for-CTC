@@ -199,6 +199,9 @@ This release contains our original code for our Cell Tracking Challenge contribu
 ### 2.0
 This release improves the usability of our code, e.g., training/retraining. In addition, some subtle changes have been made in the training data creation. However, the original training data sets can still be reproduced using the parameter <tt>split</tt>.
 
+### 2.1
+Merging post-processing added.
+
 ## Publications
 T. Scherr, K. Löffler, M. Böhland, and R. Mikut (2020). Cell Segmentation and Tracking using CNN-Based Distance Predictions and a Graph-Based Matching Strategy. PLoS ONE 15(12). DOI: [10.1371/journal.pone.0243219](https://doi.org/10.1371/journal.pone.0243219).
 
