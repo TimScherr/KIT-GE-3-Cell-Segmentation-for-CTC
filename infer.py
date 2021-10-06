@@ -4,6 +4,7 @@ import random
 import torch
 import warnings
 
+from copy import deepcopy
 from pathlib import Path
 
 from segmentation.inference.inference import inference_2d_ctc, inference_3d_ctc
@@ -78,13 +79,16 @@ def main():
                 print('   Segmentation results already exist (delete for new calculation).')
                 continue
 
+            inference_args = deepcopy(args)
+            inference_args.cell_type = ct
+
             if '2D' in ct:
                 inference_2d_ctc(model=model,
                                  data_path=path_data / ct / subset,
                                  result_path=path_seg_results,
                                  device=device,
                                  batchsize=args.batch_size,
-                                 args=args,
+                                 args=inference_args,
                                  num_gpus=num_gpus)
             else:
                 inference_3d_ctc(model=model,
@@ -92,7 +96,7 @@ def main():
                                  result_path=path_seg_results,
                                  device=device,
                                  batchsize=args.batch_size,
-                                 args=args,
+                                 args=inference_args,
                                  num_gpus=num_gpus)
 
 
