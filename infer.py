@@ -19,6 +19,7 @@ def main():
     # Get arguments
     parser = argparse.ArgumentParser(description='KIT-Sch-GE 2021 Cell Segmentation - Inference')
     parser.add_argument('--apply_clahe', '-acl', default=False, action='store_true', help='CLAHE pre-processing')
+    parser.add_argument('--apply_merging', '-am', default=False, action='store_true', help='Merging post-processing')
     parser.add_argument('--artifact_correction', '-ac', default=False, action='store_true', help='Artifact correction')
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--cell_type', '-ct', nargs='+', required=True, help='Cell type(s) to predict')

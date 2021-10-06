@@ -1,8 +1,9 @@
+import cv2
 import numpy as np
-from scipy.ndimage import gaussian_filter
+from scipy.ndimage import gaussian_filter, binary_dilation
 from skimage.segmentation import watershed
 from skimage import measure
-from skimage.feature import peak_local_max
+from skimage.feature import peak_local_max, canny
 from skimage.morphology import binary_closing
 
 from segmentation.utils.utils import get_nucleus_ids
@@ -144,6 +145,23 @@ def distance_postprocessing(border_prediction, cell_prediction, args, input_3d=F
 
     # Marker-based watershed
     prediction_instance = watershed(image=-cell_prediction, markers=seeds, mask=mask, watershed_line=False)
+
+    if args.apply_merging and np.max(prediction_instance) < 255:
+        # Get borders between touching cells
+        label_bin = prediction_instance > 0
+        pred_boundaries = cv2.Canny(prediction_instance.astype(np.uint8), 1, 1) > 0
+        pred_borders = cv2.Canny(label_bin.astype(np.uint8), 1, 1) > 0
+        pred_borders = pred_boundaries ^ pred_borders
+        pred_borders = measure.label(pred_borders)
+        for border_id in get_nucleus_ids(pred_borders):
+            pred_border = (pred_borders == border_id)
+            if np.sum(border_prediction[pred_border]) / np.sum(pred_border) < 0.075:  # very likely splitted due to shape
+                # Get ids to merge
+                pred_border_dilated = binary_dilation(pred_border, np.ones(shape=(3, 3), dtype=np.uint8))
+                merge_ids = get_nucleus_ids(prediction_instance[pred_border_dilated])
+                if len(merge_ids) == 2:
+                    prediction_instance[prediction_instance == merge_ids[1]] = merge_ids[0]
+        prediction_instance = measure.label(prediction_instance)
 
     # Iterative splitting of cells detected as (probably) merged
     if apply_splitting:

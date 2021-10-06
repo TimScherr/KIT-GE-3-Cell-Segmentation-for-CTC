@@ -20,7 +20,7 @@ class EvalArgs(object):
     """
 
     def __init__(self, th_cell, th_seed, n_splitting, apply_clahe, scale, cell_type, save_raw_pred,
-                 artifact_correction, fuse_z_seeds):
+                 artifact_correction, apply_merging, fuse_z_seeds):
         """
 
         :param th_cell: Mask / cell size threshold.
@@ -51,6 +51,7 @@ class EvalArgs(object):
         self.save_raw_pred = save_raw_pred
         self.artifact_correction = artifact_correction
         self.fuse_z_seeds = fuse_z_seeds
+        self.apply_merging = apply_merging
 
 
 def main():
@@ -61,6 +62,7 @@ def main():
     # Get arguments
     parser = argparse.ArgumentParser(description='KIT-Sch-GE 2021 Cell Segmentation - Evaluation')
     parser.add_argument('--apply_clahe', '-acl', default=False, action='store_true', help='CLAHE pre-processing')
+    parser.add_argument('--apply_merging', '-am', default=False, action='store_true', help='Merging post-processing')
     parser.add_argument('--artifact_correction', '-ac', default=False, action='store_true', help='Artifact correction')
     parser.add_argument('--batch_size', '-bs', default=8, type=int, help='Batch size')
     parser.add_argument('--cell_type', '-ct', nargs='+', required=True, help='Cell type(s)')
@@ -173,6 +175,7 @@ def main():
                                              apply_clahe=args.apply_clahe, scale=scale_factor, cell_type=ct,
                                              save_raw_pred=args.save_raw_pred,
                                              artifact_correction=args.artifact_correction,
+                                             apply_merging=args.apply_merging,
                                              fuse_z_seeds=args.fuse_z_seeds)
 
                         if '2D' in ct:

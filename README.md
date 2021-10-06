@@ -125,6 +125,7 @@ The best model (OP_CSB measure for GT & GT+ST, SEG measure calculated on ST for 
 
 ### Parameters
 - <tt>--apply_clahe</tt> / <tt>-acl</tt>: CLAHE pre-processing.
+- <tt>--apply_merging</tt> / <tt>-am</tt>: Merging post-processing (only 2D, can resolve oversegmentation but may lead to undersegmentation)
 - <tt>--artifact_correction</tt> / <tt>-ac</tt>: Motion-based artifact correction post-processing (only for 2D and dense data).
 - <tt>--batch_size</tt> / <tt>-bs</tt>: batch size (**8**).
 - <tt>--fuse_z_seeds</tt> / <tt>-fzs</tt>: Fuse seeds in axial direction (only for 3D).
@@ -166,6 +167,7 @@ The results can be found in *./challenge_datasets/cell_type*.
 
 ### Parameters
 - <tt>--apply_clahe</tt> / <tt>-acl</tt>: CLAHE pre-processing.
+- <tt>--apply_merging</tt> / <tt>-am</tt>: Merging post-processing (only 2D, can resolve oversegmentation but may lead to undersegmentation)
 - <tt>--artifact_correction</tt> / <tt>-ac</tt> : Motion-based artifact correction post-processing (only for 2D and dense data).
 - <tt>--batch_size</tt> / <tt>-bs</tt>: batch size (**8**).
 - <tt>--fuse_z_seeds</tt> / <tt>-fzs</tt>: Fuse seeds in axial direction (only for 3D).
