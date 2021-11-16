@@ -356,7 +356,7 @@ class UNet(nn.Module):
 
 
 class DUNet(nn.Module):
-    """ U-net with two decoder paths and style vector. """
+    """ U-net with two decoder paths. """
 
     def __init__(self, ch_in=1, ch_out=1, pool_method='conv', act_fun='relu', normalization='bn', filters=(64, 1024)):
         """
