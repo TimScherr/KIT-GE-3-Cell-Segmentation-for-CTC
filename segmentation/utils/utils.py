@@ -240,209 +240,31 @@ def zero_pad_model_input(img, pad_val=0):
     :return: (zero-)padded img, [0s padded in y-direction, 0s padded in x-direction]
     """
 
+    # Tested shapes
+    tested_img_shapes = [64, 128, 256, 320, 512, 768, 1024, 1280, 1408, 1600, 1920, 2048, 2240, 2560, 3200, 4096,
+                         4480, 6080, 8192]
+
     if len(img.shape) == 3:  # 3D image (z-dimension needs no pads)
         img = np.transpose(img, (2, 1, 0))
 
-    if img.shape[0] < 64:
-        # Zero-pad to 128
-        y_pads = 64 - img.shape[0]
+    # More effective padding (but may lead to cuda errors)
+    # y_pads = int(np.ceil(img.shape[0] / 64) * 64) - img.shape[0]
+    # x_pads = int(np.ceil(img.shape[1] / 64) * 64) - img.shape[1]
 
-    elif img.shape[0] == 64:
-        # No zero-padding needed
-        y_pads = 0
+    pads = []
+    for i in range(2):
+        for tested_img_shape in tested_img_shapes:
+            if img.shape[i] <= tested_img_shape:
+                pads.append(tested_img_shape - img.shape[i])
+                break
 
-    elif img.shape[0] < 128:
-        # Zero-pad to 128
-        y_pads = 128 - img.shape[0]
-
-    elif img.shape[0] == 128:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 128 < img.shape[0] < 256:
-        # Zero-pad to 256
-        y_pads = 256 - img.shape[0]
-
-    elif img.shape[0] == 256:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 256 < img.shape[0] < 512:
-        # Zero-pad to 512
-        y_pads = 512 - img.shape[0]
-
-    elif img.shape[0] == 512:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 512 < img.shape[0] < 768:
-        # Zero-pad to 768
-        y_pads = 768 - img.shape[0]
-
-    elif img.shape[0] == 768:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 768 < img.shape[0] < 1024:
-        # Zero-pad to 1024
-        y_pads = 1024 - img.shape[0]
-
-    elif img.shape[0] == 1024:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 1024 < img.shape[0] < 1280:
-        # Zero-pad to 2048
-        y_pads = 1280 - img.shape[0]
-
-    elif img.shape[0] == 1280:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 1280 < img.shape[0] < 1920:
-        # Zero-pad to 1920
-        y_pads = 1920 - img.shape[0]
-
-    elif img.shape[0] == 1920:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 1920 < img.shape[0] < 2048:
-        # Zero-pad to 2048
-        y_pads = 2048 - img.shape[0]
-
-    elif img.shape[0] == 2048:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 2048 < img.shape[0] < 2560:
-        # Zero-pad to 2560
-        y_pads = 2560 - img.shape[0]
-
-    elif img.shape[0] == 2560:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 2560 < img.shape[0] < 4096:
-        # Zero-pad to 4096
-        y_pads = 4096 - img.shape[0]
-
-    elif img.shape[0] == 4096:
-        # No zero-padding needed
-        y_pads = 0
-
-    elif 4096 < img.shape[0] < 8192:
-        # Zero-pad to 8192
-        y_pads = 8192 - img.shape[0]
-
-    elif img.shape[0] == 8192:
-        # No zero-padding needed
-        y_pads = 0
-    else:
-        raise Exception('Padding error. Image too big?')
-
-    if img.shape[1] < 64:
-        # Zero-pad to 128
-        x_pads = 64 - img.shape[1]
-
-    elif img.shape[1] == 64:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif img.shape[1] < 128:
-        # Zero-pad to 128
-        x_pads = 128 - img.shape[1]
-
-    elif img.shape[1] == 128:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 128 < img.shape[1] < 256:
-        # Zero-pad to 256
-        x_pads = 256 - img.shape[1]
-
-    elif img.shape[1] == 256:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 256 < img.shape[1] < 512:
-        # Zero-pad to 512
-        x_pads = 512 - img.shape[1]
-
-    elif img.shape[1] == 512:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 512 < img.shape[1] < 768:
-        # Zero-pad to 768
-        x_pads = 768 - img.shape[1]
-
-    elif img.shape[1] == 768:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 768 < img.shape[1] < 1024:
-        # Zero-pad to 1024
-        x_pads = 1024 - img.shape[1]
-
-    elif img.shape[1] == 1024:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 1024 < img.shape[1] < 1280:
-        # Zero-pad to 1024
-        x_pads = 1280 - img.shape[1]
-
-    elif img.shape[1] == 1280:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 1280 < img.shape[1] < 1920:
-        # Zero-pad to 1920
-        x_pads = 1920 - img.shape[1]
-
-    elif img.shape[1] == 1920:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 1920 < img.shape[1] < 2048:
-        # Zero-pad to 2048
-        x_pads = 2048 - img.shape[1]
-
-    elif img.shape[1] == 2048:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 2048 < img.shape[1] < 2560:
-        # Zero-pad to 2560
-        x_pads = 2560 - img.shape[1]
-
-    elif img.shape[1] == 2560:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 2560 < img.shape[1] < 4096:
-        # Zero-pad to 4096
-        x_pads = 4096 - img.shape[1]
-
-    elif img.shape[1] == 4096:
-        # No zero-padding needed
-        x_pads = 0
-
-    elif 4096 < img.shape[1] < 8192:
-        # Zero-pad to 8192
-        x_pads = 8192 - img.shape[1]
-
-    elif img.shape[1] == 8192:
-        # No zero-padding needed
-        x_pads = 0
-    else:
-        raise Exception('Padding error. Image too big?')
+    if not pads:
+        raise Exception('Image too big to pad. Use sliding windows')
 
     if len(img.shape) == 3:  # 3D image
-        img = np.pad(img, ((y_pads, 0), (x_pads, 0), (0, 0)), mode='constant', constant_values=pad_val)
+        img = np.pad(img, ((pads[0], 0), (pads[1], 0), (0, 0)), mode='constant', constant_values=pad_val)
         img = np.transpose(img, (2, 1, 0))
     else:
-        img = np.pad(img, ((y_pads, 0), (x_pads, 0)), mode='constant', constant_values=pad_val)
+        img = np.pad(img, ((pads[0], 0), (pads[1], 0)), mode='constant', constant_values=pad_val)
 
-    return img, [y_pads, x_pads]
+    return img, [pads[0], pads[1]]
