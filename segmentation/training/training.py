@@ -1,5 +1,6 @@
 import gc
 import numpy as np
+import random
 import time
 import torch
 import torch.optim as optim
@@ -85,6 +86,7 @@ def train(net, datasets, configs, device, path_models, best_loss=1e4):
                                                  batch_size=configs['batch_size'],
                                                  shuffle=apply_shuffling,
                                                  pin_memory=True,
+                                                 worker_init_fn=seed_worker,
                                                  num_workers=8)
                   for x in ['train', 'val']}
 
@@ -286,6 +288,7 @@ def train_auto(net, dataset, configs, device, path_models):
                                              batch_size=configs['batch_size_auto'],
                                              shuffle=True,
                                              pin_memory=True,
+                                             worker_init_fn=seed_worker,
                                              num_workers=8)
 
     # Loss function and optimizer
@@ -360,3 +363,17 @@ def train_auto(net, dataset, configs, device, path_models):
     gc.collect()
 
     return None
+
+
+def seed_worker(worker_id):
+    """ Fix pytorch seeds on linux
+
+    https://pytorch.org/docs/stable/notes/randomness.html
+    https://tanelp.github.io/posts/a-bug-that-plagues-thousands-of-open-source-ml-projects/
+
+    :param worker_id:
+    :return:
+    """
+    worker_seed = torch.initial_seed() % 2**32
+    np.random.seed(worker_seed)
+    random.seed(worker_seed)
