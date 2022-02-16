@@ -36,8 +36,8 @@ def main():
     args = parser.parse_args()
 
     # Paths
-    path_data = Path.cwd() / 'challenge_data'
-    path_models = Path.cwd() / 'models'
+    path_data = Path(__file__).parent / 'challenge_data'
+    path_models = Path(__file__).parent / 'models'
 
     # Set device for using CPU or GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

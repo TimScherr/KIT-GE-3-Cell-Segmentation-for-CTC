@@ -675,7 +675,7 @@ def create_ctc_training_sets(path_data, mode, cell_type_list, split='01+02', cro
 
         # Load split if original 'kit-sch-ge' training sets should be reproduced
         if split == 'kit-sch-ge':
-            train_val_ids = get_file(path=Path.cwd()/'segmentation'/'training'/'splits'/'ids_{}_{}.json'.format(ct, mode))
+            train_val_ids = get_file(path=Path(__file__).parent/'splits'/'ids_{}_{}.json'.format(ct, mode))
             used_crops = get_used_crops(train_val_ids, mode)
         else:
             used_crops = []
@@ -881,9 +881,9 @@ def create_ctc_training_sets(path_data, mode, cell_type_list, split='01+02', cro
         train_val_ids = {}
         if split == 'kit-sch-ge':
             if mode == 'GT+ST':
-                train_val_ids = get_file(path=Path.cwd()/'segmentation'/'training'/'splits'/'ids_allGT+allST.json')
+                train_val_ids = get_file(path=Path(__file__).parent/'splits'/'ids_allGT+allST.json')
             else:
-                train_val_ids = get_file(path=Path.cwd()/'segmentation'/'training'/'splits'/'ids_{}{}.json'.format(trainset_name, mode))
+                train_val_ids = get_file(path=Path(__file__).parent/'splits'/'ids_{}{}.json'.format(trainset_name, mode))
 
         cell_counts = {'train': {}, 'val': {}}
         for ct in cell_type_list:

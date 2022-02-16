@@ -42,8 +42,8 @@ def main():
     args = parser.parse_args()
 
     # Paths
-    path_data = Path.cwd() / 'training_data'
-    path_models = Path.cwd() / 'models' / 'all'
+    path_data = Path(__file__).parent / 'training_data'
+    path_models = Path(__file__).parent / 'models' / 'all'
 
     # Set device for using CPU or GPU
     device, num_gpus = torch.device("cuda" if torch.cuda.is_available() else "cpu"), 1
@@ -112,7 +112,7 @@ def main():
 
         if args.retrain:
 
-            old_model = Path.cwd() / args.retrain
+            old_model = Path(__file__).parent / args.retrain
             if get_file(old_model.parent / "{}.json".format(old_model.stem))['architecture'][-1] != train_configs['architecture'][-1]:
                 raise Exception('Architecture of model to retrain does not match.')
             # Get weights of trained model to retrain

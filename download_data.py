@@ -19,9 +19,9 @@ def download_data(url, target):
 
 if __name__ == "__main__":
 
-    traindata_path = Path.cwd() / 'training_data'
-    challengedata_path = Path.cwd() / 'challenge_data'
-    evalsoftware_path = Path.cwd() / 'evaluation_software'
+    traindata_path = Path(__file__).parent / 'training_data'
+    challengedata_path = Path(__file__).parent / 'challenge_data'
+    evalsoftware_path = Path(__file__).parent / 'evaluation_software'
 
     trainingdata_url = 'http://data.celltrackingchallenge.net/training-datasets/'
     challengedata_url = 'http://data.celltrackingchallenge.net/challenge-datasets/'

@@ -20,7 +20,7 @@ def download_data(url, target):
 
 if __name__ == "__main__":
 
-    model_path = Path.cwd() / 'models' / 'kit-sch-ge'
+    model_path = Path(__file__).parent / 'models' / 'kit-sch-ge'
     model_url = 'http://public.celltrackingchallenge.net/participants/KIT-Sch-GE%20(2).zip'
 
     # Download training set

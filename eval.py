@@ -79,10 +79,10 @@ def main():
     args = parser.parse_args()
 
     # Paths
-    path_data = Path.cwd() / 'training_data'
-    path_models = Path.cwd() / 'models' / 'all'
-    path_best_models = Path.cwd() / 'models' / 'best'
-    path_ctc_metric = Path.cwd() / 'evaluation_software'
+    path_data = Path(__file__).parent / 'training_data'
+    path_models = Path(__file__).parent / 'models' / 'all'
+    path_best_models = Path(__file__).parent / 'models' / 'best'
+    path_ctc_metric = Path(__file__).parent / 'evaluation_software'
 
     # Set device for using CPU or GPU
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
