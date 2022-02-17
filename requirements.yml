@@ -1,4 +1,4 @@
-name: kit_sch-ge-2021_cell_segmentation_ve
+name: kit-sch-ge-2021_cell_segmentation_ve
 channels:
   - pytorch
   - conda-forge

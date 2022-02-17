@@ -1,6 +1,6 @@
-# KIT-Sch-GE 2021 Segmentation
+# KIT-Sch-GE (2) Segmentation
 
-Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 ([Team KIT-Sch-GE](http://celltrackingchallenge.net/participants/KIT-Sch-GE/)).
+Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 as team [KIT-Sch-GE (2)](http://celltrackingchallenge.net/participants/KIT-Sch-GE/)):
 
 ![Segmentation Overview Image](documentation/segmentation_overview.png)
 
@@ -20,9 +20,9 @@ Open the Anaconda Prompt (Windows) or the Terminal (Linux), go to the repository
 cd path_to_the_cloned_repository
 conda env create -f requirements.yml
 ```
-Activate the virtual environment kit_sch-ge-2021_cell_segmentation_ve:
+Activate the virtual environment kit-sch-ge-2021_cell_segmentation_ve:
 ```
-conda activate kit_sch-ge-2021_cell_segmentation_ve
+conda activate kit-sch-ge-2021_cell_segmentation_ve
 ``` 
 
 ## Download Models
