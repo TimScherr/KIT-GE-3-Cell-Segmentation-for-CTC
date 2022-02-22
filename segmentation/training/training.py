@@ -5,6 +5,7 @@ import time
 import torch
 import torch.optim as optim
 
+from multiprocessing import cpu_count
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingLR
 
 from segmentation.training.ranger2020 import Ranger
@@ -82,12 +83,20 @@ def train(net, datasets, configs, device, path_models, best_loss=1e4):
 
     # Data loader for training and validation set
     apply_shuffling = {'train': True, 'val': False}
+    if device.type == "cpu":
+        num_workers = 0
+    else:
+        try:
+            num_workers = cpu_count() // 2
+        except AttributeError:
+            num_workers = 4
+    num_workers = np.minimum(num_workers, 16)
     dataloader = {x: torch.utils.data.DataLoader(datasets[x],
                                                  batch_size=configs['batch_size'],
                                                  shuffle=apply_shuffling,
                                                  pin_memory=True,
                                                  worker_init_fn=seed_worker,
-                                                 num_workers=8)
+                                                 num_workers=num_workers)
                   for x in ['train', 'val']}
 
     # Loss function and optimizer
