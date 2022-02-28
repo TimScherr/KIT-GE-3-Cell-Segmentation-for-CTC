@@ -90,6 +90,8 @@ def train(net, datasets, configs, device, path_models, best_loss=1e4):
             num_workers = cpu_count() // 2
         except AttributeError:
             num_workers = 4
+    if num_workers <= 2:  # Probably Google Colab --> use 0
+        num_workers = 0
     num_workers = np.minimum(num_workers, 16)
     dataloader = {x: torch.utils.data.DataLoader(datasets[x],
                                                  batch_size=configs['batch_size'],

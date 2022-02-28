@@ -67,6 +67,8 @@ def inference_2d_ctc(model, data_path, result_path, device, batchsize, args, num
             num_workers = cpu_count() // 2
         except AttributeError:
             num_workers = 4
+    if num_workers <= 2:  # Probably Google Colab --> use 0
+        num_workers = 0
     num_workers = np.minimum(num_workers, 16)
     dataloader = torch.utils.data.DataLoader(ctc_dataset, batch_size=batchsize, shuffle=False, pin_memory=True,
                                              num_workers=num_workers)
@@ -199,9 +201,20 @@ def inference_3d_ctc(model, data_path, result_path, device, batchsize, args, num
     torch.set_grad_enabled(False)
 
     # Get images to predict
+    if device.type == "cpu":
+        num_workers = 0
+    else:
+        try:
+            num_workers = cpu_count() // 2
+        except AttributeError:
+            num_workers = 4
+    if num_workers <= 2:  # Probably Google Colab --> use 0
+        num_workers = 0
+    num_workers = np.minimum(num_workers, 16)
     ctc_dataset = CTCDataSet(data_dir=data_path,
                              transform=pre_processing_transforms(apply_clahe=args.apply_clahe, scale_factor=args.scale))
-    dataloader = torch.utils.data.DataLoader(ctc_dataset, batch_size=batchsize, shuffle=False, pin_memory=True, num_workers=8)
+    dataloader = torch.utils.data.DataLoader(ctc_dataset, batch_size=batchsize, shuffle=False, pin_memory=True,
+                                             num_workers=num_workers)
 
     # Predict images (iterate over images/files)
     for sample in dataloader:
