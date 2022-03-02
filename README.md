@@ -4,6 +4,8 @@ Distance-transform-prediction-based segmentation method used for our submission 
 
 ![Segmentation Overview Image](documentation/segmentation_overview.png)
 
+A [Google Colab](https://colab.research.google.com/?utm_source=scs-index) notebook can be found in */colab*.
+
 ## Prerequisites
 * [Anaconda Distribution](https://www.anaconda.com/products/individual)
 * A CUDA capable GPU
