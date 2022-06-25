@@ -1,6 +1,6 @@
 # KIT-Sch-GE (2) Segmentation
 
-Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 as team [KIT-Sch-GE (2)](http://celltrackingchallenge.net/participants/KIT-Sch-GE/)):
+Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 as team [KIT-Sch-GE (2)](http://celltrackingchallenge.net/participants/KIT-Sch-GE/):
 
 ![Segmentation Overview Image](documentation/segmentation_overview.png)
 
