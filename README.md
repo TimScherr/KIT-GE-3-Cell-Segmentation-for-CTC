@@ -4,7 +4,7 @@ Distance-transform-prediction-based segmentation method used for our submission 
 
 ![Segmentation Overview Image](documentation/segmentation_overview.png)
 
-A [Google Colab](https://colab.research.google.com/?utm_source=scs-index) notebook can be found in */colab*.
+A [Google Colab](https://colab.research.google.com/?utm_source=scs-index) notebook can be found in */colab*. A software with graphical user interface can be found [here](https://github.com/hip-satomi/microbeSEG).
 
 ## Prerequisites
 * [Anaconda Distribution](https://www.anaconda.com/products/individual)
