@@ -1,10 +1,10 @@
-# KIT-Sch-GE (2) Segmentation
+# KIT-GE (3) / KIT-Sch-GE (2) Segmentation
 
-Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 as team [KIT-Sch-GE (2)](http://celltrackingchallenge.net/participants/KIT-Sch-GE/):
+Distance-transform-prediction-based segmentation method used for our submission to the 6th edition of the [ISBI Cell Tracking Challenge](http://celltrackingchallenge.net/) 2021 as team KIT-Sch-GE (2) (now [KIT-GE (3)](http://celltrackingchallenge.net/participants/KIT-GE/)):
 
 ![Segmentation Overview Image](documentation/segmentation_overview.png)
 
-A [Google Colab](https://colab.research.google.com/?utm_source=scs-index) notebook can be found in */colab*. A software with graphical user interface can be found [here](https://github.com/hip-satomi/microbeSEG).
+A [Google Colab](https://colab.research.google.com/?utm_source=scs-index) notebook can be found in */colab*. Our software tool *microbeSEG* with graphical user interface and OMERO support can be found [here](https://github.com/hip-satomi/microbeSEG).
 
 ## Prerequisites
 * [Anaconda Distribution](https://www.anaconda.com/products/individual)
