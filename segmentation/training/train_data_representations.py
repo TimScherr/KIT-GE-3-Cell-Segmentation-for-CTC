@@ -99,8 +99,11 @@ def distance_label_2d(label, cell_radius, neighbor_radius):
                        int(max(centroid[1] - cell_radius, 0)):int(min(centroid[1] + cell_radius, label.shape[1]))
                        ]
         nucleus_crop_dist = distance_transform_edt(nucleus_crop)
-        if np.max(nucleus_crop_dist) > 0:
-            nucleus_crop_dist = nucleus_crop_dist / np.max(nucleus_crop_dist)
+        max_dist = np.max(nucleus_crop_dist)
+        if max_dist > 0:
+            nucleus_crop_dist = nucleus_crop_dist / max_dist
+        else:
+            continue
         label_dist[
         int(max(centroid[0] - cell_radius, 0)):int(min(centroid[0] + cell_radius, label.shape[0])),
         int(max(centroid[1] - cell_radius, 0)):int(min(centroid[1] + cell_radius, label.shape[1]))
@@ -126,9 +129,8 @@ def distance_label_2d(label, cell_radius, neighbor_radius):
         nucleus_neighbor_crop_dist = distance_transform_edt(nucleus_neighbor_crop)
         nucleus_neighbor_crop_dist = nucleus_neighbor_crop_dist * nucleus_neighbor_crop_nucleus
         if np.max(nucleus_neighbor_crop_dist) > 0:
-            # nucleus_neighbor_crop_dist = nucleus_neighbor_crop_dist / np.max(nucleus_neighbor_crop_dist)
-            # For elongated objects the scaling is not good (broad large distance values/areas)
-            denominator = np.minimum(np.max(nucleus_neighbor_crop_dist), 1.1 * props[i].minor_axis_length) + 1e-8
+            denominator = np.minimum(max_dist + 3,  # larger than max_dist since scaled later on (improves small cells)
+                                     np.max(nucleus_neighbor_crop_dist))
             nucleus_neighbor_crop_dist = nucleus_neighbor_crop_dist / denominator
             nucleus_neighbor_crop_dist = np.clip(nucleus_neighbor_crop_dist, 0, 1)
         else:
