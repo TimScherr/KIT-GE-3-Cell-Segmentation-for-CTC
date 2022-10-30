@@ -147,6 +147,7 @@ The best model (OP_CSB measure for GT & GT+ST, SEG measure calculated on ST for 
 - All models which begin with <tt>--models "model_prefix"</tt> will be evaluated and the best model will be selected and copied to *./models/best/"*
 - Some cell types are excluded for finding the best model evaluations with more than 1 cell type given (since they are quite different and the idea is to find a better model for the remaining cell types).
 - A list with metrics for each subset and cell type of each model can be found after the evaluation at *./models/best/.
+- Use release 2.1 for exact reproduction of our submission results with the downloaded models. We expect the OP_CSB scores to improve by up to 0.02 depending on the dataset after internal tests using the current code version (better neighbor distance normalization --> better training and less wrong splits, less smoothing in post-processing better --> better cell shapes).
 
 ### Examples
 Evaluate all models which begin with "Fluo-N2DL-HeLa_ST_01_model" (trained on subset "01", stored in *./models/all*) for multiple thresholds on subset "02":
@@ -195,14 +196,20 @@ python infer.py --cell_type "BF-C2DL-HSC" "BF-C2DL-MuSC" --model "best/BF-C2DL-H
 
 ## Releases
 
-### 1.0
-This release contains our original code for our Cell Tracking Challenge contribution.
+### [3.0](https://github.com/TimScherr/KIT-GE-3-Cell-Segmentation-for-CTC/releases/tag/v3.0)
+ - Neighbor distance map normalization for elongated objects fixed,
+ - Google Colab notebook added.
 
-### 2.0
-This release improves the usability of our code, e.g., training/retraining. In addition, some subtle changes have been made in the training data creation. However, the original training data sets can still be reproduced using the parameter <tt>split</tt>.
+### [2.1](https://git.scc.kit.edu/KIT-Sch-GE/2021_segmentation/-/releases/v2.1)
+ - Merging post-processing added.
 
-### 2.1
-Merging post-processing added.
+### [2.0](https://git.scc.kit.edu/KIT-Sch-GE/2021_segmentation/-/releases/v2.0)
+ - Improved code usability,
+ - adjusted training data creation,
+ - original training data sets can be reproduced using the parameter <tt>split</tt>.
+
+### [1.0](https://git.scc.kit.edu/KIT-Sch-GE/2021_segmentation/-/releases/v1.0)
+ - Original code of our Cell Tracking Challenge contribution.
 
 ## Publications
 T. Scherr, K. Löffler, M. Böhland, and R. Mikut (2020). Cell Segmentation and Tracking using CNN-Based Distance Predictions and a Graph-Based Matching Strategy. PLoS ONE 15(12). DOI: [10.1371/journal.pone.0243219](https://doi.org/10.1371/journal.pone.0243219).
