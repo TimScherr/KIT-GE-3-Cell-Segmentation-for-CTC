@@ -60,15 +60,12 @@ def distance_postprocessing(border_prediction, cell_prediction, args, input_3d=F
     # Smooth predictions slightly + clip border prediction (to avoid negative values being positive after squaring)
     if input_3d:
         sigma_cell = (0.5, 1.0, 1.0)
-        sigma_border = (0.5, 0.5, 0.5)
     else:
-        sigma_cell = 1.0
-        sigma_border = 0.5
+        sigma_cell = 0.5
 
     apply_splitting = False
 
     cell_prediction = gaussian_filter(cell_prediction, sigma=sigma_cell)
-    border_prediction = gaussian_filter(border_prediction, sigma=sigma_border)
     border_prediction = np.clip(border_prediction, 0, 1)
 
     th_seed = args.th_seed
