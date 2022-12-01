@@ -5,6 +5,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import numpy as np
+
 
 def ctc_metrics(path_data, path_results, path_software, subset, mode='GT'):
     """ Cell Tracking Challenge detection and segmentation metrics (DET, SEG).
@@ -69,7 +71,7 @@ def ctc_metrics(path_data, path_results, path_software, subset, mode='GT'):
         shutil.copyfile(str(path_results.parent / 'tmp' / "{}_RES".format(subset) / 'DET_log.txt'),
                         str(path_results / 'DET_log.txt'))
     else:
-        det_measure = 0
+        det_measure = np.nan
 
     # Remove temporary directory
     shutil.rmtree(str(path_results.parent / 'tmp'))

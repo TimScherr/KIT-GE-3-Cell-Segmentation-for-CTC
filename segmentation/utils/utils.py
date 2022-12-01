@@ -148,84 +148,40 @@ def copy_best_model(path_models, path_best_models, best_model, best_settings):
     return None
 
 
-def get_best_model(metric_scores, mode, subset, th_cells, th_seeds):
+def get_best_model(scores_df, cell_types, subset):
     """ Get best model and corresponding settings.
 
-    :param metric_scores: Scores of corresponding models.
-        :type metric_scores: dict
-    :param mode: Mode ('all', 'single')
-        :type mode: str
+    :param scores_df: Evaluation scores of the models.
+        :type scores_df: pd.DataFrame
+    :param cell_types: list of cell types to consider.
+        :type cell_types: list
     :param subset: Evaluate on dataset '01', '02' or on both ('01+02').
         :type subset: str
-    :param th_cells: Cell/mask thresholds which are evaluated
-        :type th_cells: list
-    :param th_seeds: Seed/marker thresholds which are evaluated.
-        :type th_seeds: list
-    :return:
+    :return: DataFrame row with best OP_CSB for given cell types and subset.
     """
 
-    best_th_cell, best_th_seed, best_model = 0, 0, ''
+    # Extract results of given cell types
+    scores_df = scores_df[scores_df['cell type'].isin(cell_types)]
 
-    subsets = [subset]
-    if subset == '01+02':
-        subsets = ['01', '02']
+    # Extract GT metrics dataframe and ST metrics dataframe
+    scores_gt_df = scores_df[scores_df['mode'] == 'GT']
+    if len(scores_gt_df) == 0:  # Use ST scores if not evaluated on GTs
+        scores_gt_df = scores_df[scores_df['mode'] == 'ST']
 
-    if "all" in mode:
-
-        best_op_csb = 0
-
-        for model in metric_scores:
-
-            for th_seed in th_seeds:
-
-                for th_cell in th_cells:
-
-                    op_csb = 0
-
-                    for cell_type in metric_scores[model]:
-
-                        # Exclude too different cell types (goal: better model on other data sets)
-                        if cell_type in ['Fluo-C2DL-MSC', 'Fluo-C3DH-H157']:
-                            continue
-
-                        for train_set in subsets:
-                            op_csb += metric_scores[model][cell_type][train_set][str(th_seed)][str(th_cell)]['OP_CSB']
-
-                    op_csb /= len(metric_scores[model]) * len(subsets)
-
-                    if op_csb > best_op_csb:
-                        best_op_csb = op_csb
-                        best_th_cell = th_cell
-                        best_th_seed = th_seed
-                        best_model = model
+    if len(cell_types) > 1:
+        scores_gt_df = scores_gt_df.groupby(by=['model', 'th_seed', 'th_cell', 'n_splitting', 'apply_clahe',
+                                                'scale_factor', 'artifact_correction', 'apply_merging', 'fuse_z_seeds',
+                                                'mode'],
+                                            as_index=False).sum()
+        scores_gt_df[['OP_CSB (01)', 'OP_CSB (02)', 'OP_CSB', 'DET (01)',
+                      'DET (02)', 'DET', 'SEG (01)', 'SEG (02)', 'SEG']] /= len(cell_types)
 
     else:
+        scores_gt_df = scores_gt_df[scores_df['cell type'] == cell_types[0]]
 
-        best_op_csb = 0
+    scores_gt_df = scores_gt_df.sort_values(by=['OP_CSB'])
 
-        for model in metric_scores:
-
-            for cell_type in metric_scores[model]:
-
-                for th_seed in th_seeds:
-
-                    for th_cell in th_cells:
-
-                        op_csb = 0
-
-                        for train_set in subsets:
-
-                            op_csb += metric_scores[model][cell_type][train_set][str(th_seed)][str(th_cell)]['OP_CSB']
-
-                        op_csb /= len(subsets)
-
-                        if op_csb > best_op_csb:
-                            best_op_csb = op_csb
-                            best_th_cell = th_cell
-                            best_th_seed = th_seed
-                            best_model = model
-
-    return best_op_csb, float(best_th_cell), float(best_th_seed), best_model
+    return scores_gt_df.iloc[-1].to_dict()
 
 
 def zero_pad_model_input(img, pad_val=0):
