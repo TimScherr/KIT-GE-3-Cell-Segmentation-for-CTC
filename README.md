@@ -121,7 +121,7 @@ Trained models can be evaluated on the training datasets with (you may need to m
 ```
 python eval.py  --cell_type "cell_type" --mode "mode"
 ```
-The best model (OP_CSB measure for GT & GT+ST, SEG measure calculated on ST for ST) for the selected cell_type and mode will be copied into *./models/best/*. In the corresponding .json files, the best thresholds and the applied scaling factor can be found (and also some other information). The (raw) results of all evaluated models can be found in *./training_data/cell_type/01_RES_model_name_th_seed_th_cell* and *./training_data/cell_type/02_RES_model_name_th_seed_th_cell*.
+The best model (OP_CSB measure for GT & GT+ST, SEG measure calculated on ST for ST) for the selected cell_type and mode will be copied into *./models/best/*. In the corresponding .json files, the best thresholds and the applied scaling factor can be found (and also some other information). The (raw) results of all evaluated models can be found in *./training_data/cell_type/01_RES_model_name_th_seed_th_cell* and *./training_data/cell_type/02_RES_model_name_th_seed_th_cell*. The metrics are saved in *./models/metrics.csv*.
 
 *eval_kit-sch-ge.sh* is a bash script for the training and evaluation of our whole submission (takes some time!). 
 

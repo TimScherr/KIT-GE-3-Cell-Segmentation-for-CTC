@@ -1,5 +1,9 @@
 import argparse
+import json
+
 import numpy as np
+import os
+import pandas as pd
 import random
 import torch
 import warnings
@@ -60,7 +64,7 @@ def main():
     np.random.seed()
 
     # Get arguments
-    parser = argparse.ArgumentParser(description='KIT-Sch-GE 2021 Cell Segmentation - Evaluation')
+    parser = argparse.ArgumentParser(description='KIT-GE (3) / KIT-Sch-GE (2) Cell Segmentation - Evaluation')
     parser.add_argument('--apply_clahe', '-acl', default=False, action='store_true', help='CLAHE pre-processing')
     parser.add_argument('--apply_merging', '-am', default=False, action='store_true', help='Merging post-processing')
     parser.add_argument('--artifact_correction', '-ac', default=False, action='store_true', help='Artifact correction')
@@ -69,7 +73,7 @@ def main():
     parser.add_argument('--fuse_z_seeds', '-fzs', default=False, action='store_true', help='Fuse seeds in axial direction')
     parser.add_argument('--mode', '-m', default='GT', type=str, help='Ground truth type / evaluation mode')
     parser.add_argument('--models', required=True, type=str, help='Models to evaluate (prefix)')
-    parser.add_argument('--multi_gpu', '-mgpu', default=True, action='store_true', help='Use multiple GPUs')
+    parser.add_argument('--multi_gpu', '-mgpu', default=False, action='store_true', help='Use multiple GPUs')
     parser.add_argument('--n_splitting', '-ns', default=40, type=int, help='Cell amount threshold to apply splitting post-processing (3D)')
     parser.add_argument('--save_raw_pred', '-srp', default=False, action='store_true', help='Save some raw predictions')
     parser.add_argument('--scale', '-sc', default=0, type=float, help='Scale factor (0: get from trainset info.json')
@@ -132,44 +136,60 @@ def main():
         args.th_cell = [args.th_cell]
 
     # Go through model list and evaluate for stated cell_types
-    metric_scores = {}
+    scores = []
     for model in models:
-        metric_scores[model.stem] = {}
         for ct in cell_type_list:
-            metric_scores[model.stem][ct] = {}
             train_sets = [args.subset]
-            if args.subset in ['kit-sch-ge', '01+02']:
-                train_sets = ['01', '02']
-            for train_set in train_sets:
-                metric_scores[model.stem][ct][train_set] = {}
-                # Get scale from training dataset info if not stated otherwise
-                scale_factor = args.scale
-                if args.scale == 0:
-                    scale_factor = get_file(path_data / model.stem.split('_model')[0] / "info.json")['scale']
-                # Go through thresholds
-                for th_seed in args.th_seed:
-                    metric_scores[model.stem][ct][train_set][str(th_seed)] = {}
-                    for th_cell in args.th_cell:
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)] = {}
+            # Get scale from training dataset info if not stated otherwise
+            scale_factor = args.scale
+            if args.scale == 0:
+                scale_factor = get_file(path_data / model.stem.split('_model')[0] / "info.json")['scale']
+            # Go through thresholds
+            for th_seed in args.th_seed:
+                for th_cell in args.th_cell:
+                    if args.subset in ['kit-sch-ge', '01+02']:
+                        train_sets = ['01', '02']
+                    results = {'cell type': ct,
+                               'model': model.stem,
+                               'th_seed': float(th_seed),
+                               'th_cell': float(th_cell),
+                               'n_splitting': args.n_splitting if '3D' in ct else False,
+                               'apply_clahe': args.apply_clahe,
+                               'scale_factor': scale_factor,
+                               'artifact_correction': args.artifact_correction,
+                               'apply_merging': args.apply_merging,
+                               'fuse_z_seeds': args.fuse_z_seeds if '3D' in ct else False,
+                               'DET (01)': np.nan,
+                               'DET (02)': np.nan,
+                               'DET': np.nan,
+                               'SEG (01)': np.nan,
+                               'SEG (02)': np.nan,
+                               'SEG': np.nan,
+                               'OP_CSB (01)': np.nan,
+                               'OP_CSB (02)': np.nan,
+                               'OP_CSB': np.nan,
+                               'SO (01)': np.nan,
+                               'SO (02)': np.nan,
+                               'SO': np.nan,
+                               'FPV (01)': np.nan,
+                               'FPV (02)': np.nan,
+                               'FPV': np.nan,
+                               'FNV (01)': np.nan,
+                               'FNV (02)': np.nan,
+                               'FNV': np.nan,
+                               'mode': args.mode,
+                               }
+                    for train_set in train_sets:
                         print('Evaluate {} on {}_{}: th_seed: {}, th_cell: {}'.format(model.stem, ct, train_set,
                                                                                       th_seed, th_cell))
                         path_seg_results = path_data / ct / "{}_RES_{}_{}_{}".format(train_set, model.stem, th_seed, th_cell)
                         path_seg_results.mkdir(exist_ok=True)
-                        # Check if results already exist
+                        # Overwrite existing results
+                        if (path_seg_results / "DET_log.txt").exists():
+                            os.remove(path_seg_results / "DET_log.txt")
                         if (path_seg_results / "SEG_log.txt").exists():
-                            if args.mode == 'ST':  # ST only evaluated with SEG metric
-                                det_measure, so, fnv, fpv = 0, np.nan, np.nan, np.nan
-                            else:
-                                det_measure, so, fnv, fpv = count_det_errors(path_seg_results / "DET_log.txt")
-                            seg_measure = utils.get_seg_score(path_seg_results / "SEG_log.txt")
-                            op_csb = (det_measure + seg_measure) / 2
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['DET'] = det_measure
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['SEG'] = seg_measure
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['OP_CSB'] = op_csb
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['SO'] = so
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['FPV'] = fpv
-                            metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['FNV'] = fnv
-                            continue
+                            os.remove(path_seg_results / "SEG_log.txt")
+
                         # Get post-processing settings
                         eval_args = EvalArgs(th_cell=float(th_cell), th_seed=float(th_seed), n_splitting=args.n_splitting,
                                              apply_clahe=args.apply_clahe, scale=scale_factor, cell_type=ct,
@@ -201,35 +221,51 @@ def main():
                                                                subset=train_set,
                                                                mode=args.mode)
 
+                        # For evaluation on silver truth only the SEG measure is used/calculated
                         if args.mode == 'ST':
                             so, fnv, fpv = np.nan, np.nan, np.nan
                         else:
                             _, so, fnv, fpv = count_det_errors(path_seg_results / "DET_log.txt")
-                        op_csb = (det_measure + seg_measure) / 2
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['DET'] = det_measure
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['SEG'] = seg_measure
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['OP_CSB'] = op_csb
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['SO'] = so
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['FPV'] = fpv
-                        metric_scores[model.stem][ct][train_set][str(th_seed)][str(th_cell)]['FNV'] = fnv
 
-    # Save evaluation metric scores
-    write_file(metric_scores, path_best_models / "metrics_{}_models_on_{}.json".format(args.models, trainset_name))
+                        results[f'DET ({train_set})'] = det_measure
+                        results[f'SEG ({train_set})'] = seg_measure
+                        results[f'OP_CSB ({train_set})'] = np.nansum([det_measure, seg_measure]) / 2
+                        results[f'SO ({train_set})'] = so
+                        results[f'FPV ({train_set})'] = fpv
+                        results[f'FNV ({train_set})'] = fnv
+
+                    results['DET'] = np.nansum([results['DET (01)'], results['DET (02)']]) / 2
+                    results['SEG'] = np.nansum([results['SEG (01)'], results['SEG (02)']]) / 2
+                    results['OP_CSB'] = np.nansum([results['OP_CSB (01)'], results['OP_CSB (02)']]) / 2
+                    results['SO'] = np.nansum([results['SO (01)'], results['SO (02)']])
+                    results['FPV'] = np.nansum([results['FPV (01)'], results['FPV (02)']])
+                    results['FNV'] = np.nansum([results['FNV (01)'], results['FNV (02)']])
+                    scores.append(results)
+
+    # Convert to dataframe, merge with existing results and save
+    scores_df = pd.DataFrame(scores)
+    if (path_best_models.parent / "metrics.csv").is_file():
+        old_scores_df = pd.read_csv(path_best_models.parent / "metrics.csv")
+        scores_df = pd.concat([scores_df, old_scores_df])
+        # Delete duplicate entries
+        scores_df = scores_df.drop_duplicates(subset=['model', 'cell type', 'th_seed', 'th_cell', 'n_splitting',
+                                                      'apply_clahe', 'scale_factor', 'artifact_correction',
+                                                      'apply_merging', 'fuse_z_seeds', 'mode'],
+                                              keep='first')
+    scores_df = scores_df.sort_values(by=['cell type', 'model'])
+    scores_df.to_csv(path_best_models.parent / "metrics.csv", header=True, index=False)
 
     # Get best model and copy to ./models/best_model
-    best_op_csb, best_th_cell, best_th_seed, best_model = utils.get_best_model(metric_scores=metric_scores,
-                                                                               mode="all" if len(args.cell_type) > 1 else "single",
-                                                                               subset=args.subset,
-                                                                               th_cells=args.th_cell,
-                                                                               th_seeds=args.th_seed)
-    best_settings = {'th_cell': best_th_cell,
-                     'th_seed': best_th_seed,
-                     'scale_factor': scale_factor,
-                     'OP_CSB': best_op_csb}
+    best_settings = utils.get_best_model(scores_df=scores_df, cell_types=cell_type_list, subset=args.subset)
+    for key in best_settings:
+        if type(best_settings[key]) == np.bool_:
+            best_settings[key] = bool(best_settings[key])
     utils.copy_best_model(path_models=path_models,
                           path_best_models=path_best_models,
-                          best_model=best_model,
+                          best_model=best_settings['model'],
                           best_settings=best_settings)
+
+    print(f"Best model for {cell_type_list}: {best_settings['model']}")
 
 
 if __name__ == "__main__":
