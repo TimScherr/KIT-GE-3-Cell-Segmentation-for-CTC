@@ -23,12 +23,12 @@ if __name__ == "__main__":
     model_path = Path(__file__).parent / 'models' / 'kit-sch-ge'
     model_url = 'http://public.celltrackingchallenge.net/participants/KIT-Sch-GE%20(2).zip'
 
-    # Download training set
+    # Download models
     if len(list(model_path.glob('*.pth'))) == 0:
         print('Downloading models ...')
         download_data(url=model_url, target=model_path)
 
-        # Unzip training set
+        # Unzip models
         print('Unzip models ...')
         with zipfile.ZipFile(model_path / model_url.split('/')[-1], 'r') as z:
             z.extractall('models/kit-sch-ge')
